@@ -1,0 +1,12 @@
+version: '3.5'
+
+services:
+  db_mongo:
+    container_name: db_mongo
+    image: mongo:4.4.4
+    ports:
+      - ${MONGO_DB_PORT}:${MONGO_DB_PORT}
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_DB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_DB_DATABASE}
