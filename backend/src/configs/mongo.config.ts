@@ -4,7 +4,8 @@ import { MongooseModuleAsyncOptions } from '@nestjs/mongoose';
 export const mongoConfig = (): MongooseModuleAsyncOptions => {
   return {
     useFactory: (config: ConfigService) => ({
-      uri: getMongoConfigString(config),
+      // uri: getMongoConfigString(config),
+      uri: 'mongodb://osman:123@localhost:27017',
     }),
     imports: [ConfigModule],
     inject: [ConfigService],
@@ -13,13 +14,12 @@ export const mongoConfig = (): MongooseModuleAsyncOptions => {
 
 const getMongoConfigString = (config: ConfigService) =>
   'mongodb://' +
-  config.get('MONGO_DB_USER') +
-  ':' +
-  config.get('MONGO_DB_PASSWORD') +
-  '@' +
+  // config.get('MONGO_DB_USER') +
+  // ':' +
+  // config.get('MONGO_DB_PASSWORD') +
+  // '@' +
   config.get('MONGO_DB_HOST') +
   ':' +
   config.get('MONGO_DB_PORT') +
   '/' +
-  config.get('MONGO_DB_DATABASE') +
-  '/';
+  config.get('MONGO_DB_DATABASE');

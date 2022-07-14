@@ -1,5 +1,5 @@
 export class UpdateUserDto {
   login?: string;
-  email: string;
+  email?: string;
   password?: string;
 }

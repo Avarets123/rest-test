@@ -7,24 +7,25 @@ import { LoginUserDto } from './dto/login.user.dto';
 import { IResLogin } from './interfaces/res.login.user.interface';
 import { User } from './models/user.model';
 import { compare, hash } from 'bcrypt';
+import { UpdateUserDto } from './dto/update.user.dto';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectModel(User.name) private userRepository: Model<User>,
+    @InjectModel(User.name) private userModel: Model<User>,
     private jwtService: JwtService,
   ) {}
 
   async registerUser(dto: CreateUserDto): Promise<User> {
     const { email, password } = dto;
 
-    const hasUser = await this.userRepository.findOne({ email });
+    const hasUser = await this.userModel.findOne({ email });
 
     if (hasUser) {
       throw new HttpException(`User by email: ${email} exist`, HttpStatus.BAD_REQUEST);
     }
 
-    const newUser = new User();
+    const newUser = new this.userModel();
     Object.assign(newUser, dto);
     const hashPassword = await hash(password, 9);
     newUser.password = hashPassword;
@@ -35,7 +36,7 @@ export class UserService {
   async loginUser(dto: LoginUserDto): Promise<IResLogin> {
     const { email, password } = dto;
 
-    const hasUser = await this.userRepository.findOne({ email });
+    const hasUser = await this.userModel.findOne({ email });
 
     if (!hasUser) {
       throw new HttpException(`User by email: ${email} dont exist`, HttpStatus.BAD_REQUEST);
@@ -55,5 +56,39 @@ export class UserService {
 
   private generateToken(data: any): string {
     return this.jwtService.sign({ data });
+  }
+
+  async updateUser(userId: string, dto: UpdateUserDto): Promise<User> {
+    const { password } = dto;
+
+    const hasUser = await this.userModel.findOne({ id: userId });
+
+    if (!hasUser) {
+      throw new HttpException(`User by userId: ${userId} dont exist`, HttpStatus.BAD_REQUEST);
+    }
+
+    const hashPassword = await hash(password, 9);
+
+    const data: UpdateUserDto = {};
+
+    Object.assign(data, dto);
+    data.password = hashPassword;
+
+    return await this.userModel.findOneAndUpdate({ id: userId }, data);
+  }
+
+  async getAllUserOrUserById(userId?: string): Promise<User | User[]> {
+    if (userId) {
+      return await this.userModel.findById(userId);
+    }
+    return await this.userModel.find();
+  }
+
+  async delUserById(userId: string) {
+    return await this.userModel.deleteOne({ id: userId });
+  }
+
+  verifyToken(token: string) {
+    return this.jwtService.verify(token);
   }
 }
