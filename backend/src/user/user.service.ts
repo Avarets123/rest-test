@@ -58,7 +58,7 @@ export class UserService {
     return this.jwtService.sign({ data });
   }
 
-  async updateUser(userId: string, dto: UpdateUserDto): Promise<User> {
+  async updateUser(userId: string, dto: UpdateUserDto): Promise<string> {
     const { password } = dto;
 
     const hasUser = await this.userModel.findOne({ id: userId });
@@ -74,7 +74,8 @@ export class UserService {
     Object.assign(data, dto);
     data.password = hashPassword;
 
-    return await this.userModel.findOneAndUpdate({ id: userId }, data);
+    await this.userModel.findOneAndUpdate({ id: userId }, data);
+    return 'updated';
   }
 
   async getAllUserOrUserById(userId?: string): Promise<User | User[]> {

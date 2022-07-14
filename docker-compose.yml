@@ -4,6 +4,7 @@ services:
   db_mongo:
     container_name: db_mongo
     image: mongo:4.4.4
+    restart: unless-stopped
     ports:
       - ${MONGO_DB_PORT}:${MONGO_DB_PORT}
     environment:
@@ -17,11 +18,17 @@ services:
     container_name: backend
     build: ./backend
     command: npm run start
+    restart: unless-stopped
     environment:
+      - JWT_SECRET=${JWT_SECRET}
       - BACKEND_PORT=${BACKEND_PORT}
       - MONGO_DB_PORT=${MONGO_DB_PORT}
-      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - MONGO_DB_HOST=db_mongo
       - MONGO_DB_DATABASE=${MONGO_DB_DATABASE}
+    depends_on:
+      - db_mongo
+    ports:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
 
 volumes:
   db_data:
